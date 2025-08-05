@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+*.log
+
+# Environment variables
+.env*
+!.env.example
+
+# Build outputs
+dist/
+build/
+.vercel
+
+# Test files
+test/
+
+.vercel
