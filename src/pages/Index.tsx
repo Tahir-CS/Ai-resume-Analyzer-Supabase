@@ -77,18 +77,23 @@ const Index = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/analyze-resume', {
+      // Always use Vercel API (works both locally and in production)
+      const apiUrl = 'https://ai-resume-analyzer-supabase.vercel.app/api/analyze-resume';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
       });
 
+      // First get the response as text, then try to parse as JSON
+      const responseText = await response.text();
+      
       let data;
       try {
-        data = await response.json();
+        data = JSON.parse(responseText);
       } catch (jsonError) {
         console.error('Failed to parse JSON response:', jsonError);
-        const textResponse = await response.text();
-        console.error('Raw response:', textResponse);
+        console.error('Raw response:', responseText);
         
         toast({
           title: "Server Error",
