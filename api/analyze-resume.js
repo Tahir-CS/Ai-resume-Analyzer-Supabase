@@ -116,9 +116,14 @@ Ensure the response is valid JSON only, with no additional text or formatting.
 }
 
 export default async function handler(req, res) {
+  // Set CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return res.status(200).json({});
+    return res.status(200).json({ success: true });
   }
 
   if (req.method !== 'POST') {
@@ -129,6 +134,18 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Check if Gemini API key is available
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY not found in environment variables');
+      return res.status(500).json({
+        success: false,
+        message: 'AI service not configured. Please contact support.',
+        error: 'MISSING_API_KEY'
+      });
+    }
+
+    console.log('Starting resume analysis...');
+    console.log('Gemini API Key available:', !!process.env.GEMINI_API_KEY);
     // Get user IP for rate limiting
     const userIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
     const now = Date.now();

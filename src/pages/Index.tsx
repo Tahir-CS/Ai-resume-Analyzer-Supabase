@@ -82,9 +82,23 @@ const Index = () => {
         body: formData,
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        const textResponse = await response.text();
+        console.error('Raw response:', textResponse);
+        
+        toast({
+          title: "Server Error",
+          description: "Invalid response from server. Please try again later.",
+          variant: "destructive",
+        });
+        return;
+      }
       
-      if (!data.success) {
+      if (!response.ok || !data.success) {
         // Handle specific error types
         if (data.error === 'RATE_LIMIT_EXCEEDED') {
           toast({
@@ -96,6 +110,12 @@ const Index = () => {
           toast({
             title: "AI Service Busy",
             description: "Gemini API quota exceeded. Please try again later.",
+            variant: "destructive",
+          });
+        } else if (data.error === 'MISSING_API_KEY') {
+          toast({
+            title: "Configuration Error",
+            description: "AI service not properly configured. Please contact support.",
             variant: "destructive",
           });
         } else if (data.error === 'AI_SERVICE_UNAVAILABLE') {
@@ -111,7 +131,7 @@ const Index = () => {
             throw new Error(data.message || 'AI service unavailable');
           }
         } else {
-          throw new Error(data.message || 'Failed to analyze resume');
+          throw new Error(data.message || `Server error: ${response.status}`);
         }
         return;
       }
@@ -122,7 +142,7 @@ const Index = () => {
       console.error('Error analyzing resume:', error);
       toast({
         title: "Error",
-        description: "Failed to analyze resume. Please try again.",
+        description: error.message || "Failed to analyze resume. Please try again.",
         variant: "destructive",
       });
     } finally {

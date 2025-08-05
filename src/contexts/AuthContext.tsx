@@ -51,24 +51,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false)
 
       // Create or update user profile when user signs in
-      if (event === 'SIGNED_IN' && session?.user) {
-        try {
-          const { error } = await supabase
-            .from('user_profiles')
-            .upsert({
-              user_id: session.user.id,
-              full_name: session.user.user_metadata?.full_name || session.user.email,
-              avatar_url: session.user.user_metadata?.avatar_url,
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'user_id'
-            })
-          
-          if (error) {
-            console.error('Error creating/updating user profile:', error)
+      if (event === 'SIGNED_IN') {
+        if (session) {
+          if (session.user) {
+            try {
+              // First check if user profile exists
+              const { data: existingProfile } = await supabase
+                .from('user_profiles')
+                .select('user_id')
+                .eq('user_id', session.user.id)
+                .single()
+
+              if (!existingProfile) {
+                // Only insert if profile doesn't exist
+                const { error } = await supabase
+                  .from('user_profiles')
+                  .insert({
+                    user_id: session.user.id,
+                    full_name: session.user.user_metadata?.full_name || session.user.email,
+                    avatar_url: session.user.user_metadata?.avatar_url,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                  })
+                
+                if (error) {
+                  console.error('Error creating user profile:', error)
+                }
+              } else {
+                // Update existing profile with latest info
+                const { error } = await supabase
+                  .from('user_profiles')
+                  .update({
+                    full_name: session.user.user_metadata?.full_name || session.user.email,
+                    avatar_url: session.user.user_metadata?.avatar_url,
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq('user_id', session.user.id)
+                
+                if (error) {
+                  console.error('Error updating user profile:', error)
+                }
+              }
+            } catch (error) {
+              console.error('Database operation failed:', error)
+            }
           }
-        } catch (error) {
-          console.error('Database operation failed:', error)
         }
       }
     })
