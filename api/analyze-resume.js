@@ -99,3 +99,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ success: false, message: 'An unexpected error occurred during resume analysis.', error: error.message });
   }
 }
+  
