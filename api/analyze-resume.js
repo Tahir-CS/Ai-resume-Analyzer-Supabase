@@ -33,24 +33,38 @@ const uploadTracker = new Map();
 // Extract text from PDF
 async function extractTextFromPDF(filePath) {
   try {
+    console.log('Attempting to read PDF file:', filePath);
+    
+    if (!filePath) {
+      throw new Error('No file path provided for PDF extraction');
+    }
+    
     const dataBuffer = readFileSync(filePath);
     const data = await pdf(dataBuffer);
     return data.text;
   } catch (error) {
     console.error('Error extracting text from PDF:', error);
-    throw new Error('Failed to extract text from PDF');
+    console.error('File path that failed:', filePath);
+    throw new Error(`Failed to extract text from PDF: ${error.message}`);
   }
 }
 
 // Extract text from DOCX
 async function extractTextFromDOCX(filePath) {
   try {
+    console.log('Attempting to read DOCX file:', filePath);
+    
+    if (!filePath) {
+      throw new Error('No file path provided for DOCX extraction');
+    }
+    
     const dataBuffer = readFileSync(filePath);
     const result = await mammoth.extractRawText({ buffer: dataBuffer });
     return result.value;
   } catch (error) {
     console.error('Error extracting text from DOCX:', error);
-    throw new Error('Failed to extract text from DOCX');
+    console.error('File path that failed:', filePath);
+    throw new Error(`Failed to extract text from DOCX: ${error.message}`);
   }
 }
 
@@ -182,15 +196,29 @@ export default async function handler(req, res) {
 
     const [fields, files] = await form.parse(req);
     
+    console.log('Parsed form data:', { 
+      fieldsKeys: Object.keys(fields), 
+      filesKeys: Object.keys(files),
+      filesContent: files 
+    });
+    
     const file = files.file?.[0];
     const jobDescription = fields.jobDescription?.[0] || '';
 
     if (!file) {
+      console.error('No file found in upload');
       return res.status(400).json({
         success: false,
         message: 'No file uploaded'
       });
     }
+
+    console.log('Processing file:', {
+      originalName: file.originalFilename,
+      filePath: file.filepath,
+      mimeType: file.mimetype,
+      size: file.size
+    });
 
     // Extract text based on file type
     let resumeText;

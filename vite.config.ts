@@ -19,6 +19,13 @@ export default defineConfig({
   server: {
     port: 5173,       // Customize the dev server port
     open: true,       // Automatically opens the browser
+    proxy: {
+      '/api': {
+        target: 'https://ai-resume-analyzer-supabase.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      }
+    }
   },
   build: {
     outDir: 'dist',   // Output directory

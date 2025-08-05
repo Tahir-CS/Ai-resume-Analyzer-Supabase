@@ -77,10 +77,8 @@ const Index = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Always use Vercel API (works both locally and in production)
-      const apiUrl = 'https://ai-resume-analyzer-supabase.vercel.app/api/analyze-resume';
-
-      const response = await fetch(apiUrl, {
+      // Use relative URL for API calls (works in both local and production)
+      const response = await fetch('/api/analyze-resume', {
         method: 'POST',
         body: formData,
       });
