@@ -52,7 +52,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Create or update user profile when user signs in
       if (event === 'SIGNED_IN' && session?.user) {
-        // TODO: Enable this after setting up database schema
         try {
           const { error } = await supabase
             .from('user_profiles')
@@ -61,13 +60,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               full_name: session.user.user_metadata?.full_name || session.user.email,
               avatar_url: session.user.user_metadata?.avatar_url,
               updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'user_id'
             })
           
           if (error) {
-            console.error('Error creating/updating user profile (database not set up yet):', error)
+            console.error('Error creating/updating user profile:', error)
           }
         } catch (error) {
-          console.error('Database operation failed - tables may not exist yet:', error)
+          console.error('Database operation failed:', error)
         }
       }
     })

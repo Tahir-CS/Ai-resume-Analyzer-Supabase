@@ -46,7 +46,7 @@ export const AuthComponent: React.FC<AuthComponentProps> = ({ redirectTo }) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: redirectTo || `${window.location.origin}/`
+          redirectTo: `${window.location.origin}/`
         }
       })
 

@@ -55,3 +55,4 @@ vite.config.ts.timestamp-*
 *.tgz
 .yarn-integrity
 .DS_Store
+x
