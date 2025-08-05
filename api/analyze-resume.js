@@ -292,11 +292,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Set CORS headers
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-
     res.status(200).json({
       success: true,
       feedbackId,
@@ -305,16 +300,14 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error analyzing resume:', error);
+    console.error('Full error stack:', error.stack);
     
-    // Set CORS headers even for errors
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-
-    res.status(500).json({
+    // Ensure we always return JSON even on server errors
+    return res.status(500).json({
       success: false,
-      message: 'Error analyzing resume',
-      error: error.message
+      message: 'Failed to analyze resume',
+      error: error.message || 'Unknown server error',
+      timestamp: new Date().toISOString()
     });
   }
 }
