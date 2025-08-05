@@ -77,8 +77,10 @@ const Index = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Use relative URL for API calls (works in both local and production)
-      const response = await fetch('/api/analyze-resume', {
+      // Use relative URL for API calls, which works with `vercel dev`
+      const apiUrl = '/api/analyze-resume';
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
       });
