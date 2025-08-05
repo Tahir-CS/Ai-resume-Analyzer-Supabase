@@ -1,7 +1,6 @@
 // Quick test script to check Gemini API
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const GEMINI_API_KEY = 'AIzaSyBGByKMT2Yf8gOBIg3ZHv2OXASFniwwL_s';
 
 async function testGeminiAPI() {
   try {
